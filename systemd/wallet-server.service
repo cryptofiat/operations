@@ -1,0 +1,14 @@
+[Unit]
+Description=euro 2.0 wallet server
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/wallet-server
+ExecStart=/usr/bin/java -Xmx768m -javaagent:/home/ubuntu/newrelic/newrelic.jar -Dspring.application.json='{"ethereum.node.url":"http://big-parity.euro2.ee:8545", "email.password":"YqzyMqnXtkz8"}' -Dmail.mime.charset="UTF-8" -jar wallet-server-0.0.2-SNAPSHOT.jar
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

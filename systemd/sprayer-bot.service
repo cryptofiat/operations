@@ -1,0 +1,14 @@
+[Unit]
+Description=euro 2.0 sprayer bot server
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/sprayer-bot
+ExecStart=/usr/bin/java -Xmx512m -javaagent:/home/ubuntu/newrelic/newrelic.jar -jar sprayer-bot-0.0.1-SNAPSHOT.jar
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
