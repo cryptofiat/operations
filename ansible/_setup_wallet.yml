@@ -1,0 +1,102 @@
+---
+- hosts: wallet
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  roles:
+    - euro2.base-setup
+
+  tasks:
+  #- name: get latest newrelic agent jar
+  #  file:
+  #    path: /opt/wallet-server/
+
+  - name: add nginx repo
+    apt_repository:
+      repo: 'ppa:nginx/stable'
+
+  - name: install extended packages
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - letsencrypt
+      - ldapscripts
+      - nginx-full
+
+  ## nginx
+  - name: configure nginx
+    copy:
+      src: nginx.conf
+      dest: /etc/nginx/nginx.conf
+    notify: restart nginx
+
+  - name: remove default index.html
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_fileglob:
+      - "/var/www/html/*"
+
+  - name: check if dhparam file is present
+    stat:
+      path: /etc/nginx/dhparam.pem
+    register: dhparam_file
+
+  - name: generate dhparam if not present
+    command:
+      'openssl dhparam -out /etc/nginx/dhparam.pem 2048'
+    when: dhparam_file.stat.exists == False
+
+  - name: create certificate directory
+    file:
+      dest: /etc/nginx/certificates
+      state: directory
+
+  - name: configure wallet.euro2.ee nginx server
+    copy:
+      src: nginx_wallet-client.conf
+      dest: /etc/nginx/conf.d/wallet-client.conf
+#    notify: restart nginx
+
+  # wallet server
+  - name: create wallet server directory
+    file:
+      state: directory
+      path: /opt/wallet-server/builds
+      owner: wallet-server
+      group: wallet-server
+
+  - name: create directory for user systemd ini files
+    file:
+      state: directory
+      path: /home/wallet-server/.config/systemd/user/
+
+  - name: create wallet server user systemd ini file
+    copy:
+      src: systemd/wallet-server.service
+      dest: /home/wallet-server/.config/systemd/user/wallet-server.service
+      owner: wallet-server
+      group: wallet-server
+
+  - name: add environment variable to .profile in order to get systemd --user working
+    lineinfile:
+      path: /home/wallet-server/.profile
+      line: 'export XDG_RUNTIME_DIR=/run/user/`id -u`'
+      state: present
+
+  - name: add wallet-server user to journal group in order to read logs
+    user:
+      name: wallet-server
+      append: yes
+      groups: systemd-journal
+
+#  - name: ensure newrelic agent is available
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+...

@@ -1,0 +1,108 @@
+---
+# manage hostname
+
+# user management
+- name: verify 'sudo' group
+  group:
+    name: sudo
+    state: present
+
+- name: allow 'sudo' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    validate: visudo -cf %s
+
+- name: create administrative users
+  user:
+    name: "{{ item.name }}"
+    shell: /bin/bash
+  with_items:
+    "{{ euro2_users }}"
+
+- name: add administrative users to 'sudo' group
+  user:
+    name: "{{ item.name }}"
+    groups: sudo
+    append: yes
+    shell: /bin/bash
+  with_items:
+    "{{ euro2_users }}"
+
+- name: add administrative users' public key to authorized_keys file
+  authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.ssh_pubkey }}"
+  with_items:
+    "{{ euro2_users }}"
+
+- name: create system users
+  user:
+    name: "{{ item.name }}"
+    shell: /bin/sh
+    createhome: yes
+    generate_ssh_key: yes
+    ssh_key_file: .ssh/id_deploy_access
+    ssh_key_comment: deploy access to "{{ inventory_hostname }}"
+  with_items:
+    "{{ euro2_system_users }}"
+  when: euro2_system_users
+  register: created_users
+
+- name: add system users' public key to authorized_keys file
+  authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.ssh_public_key }}"
+  with_items:
+    "{{ created_users.results }}"
+  when: created_users
+
+# package management
+- name: install base packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - build-essential
+    - dnstop
+    - git-core
+    - htop
+    - iftop
+    - iotop
+    - multitail
+    - openssl
+    - rsync
+    - rsyslog
+    - unzip
+    - wget
+
+- name: remove unnecessary base services
+  service:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  with_items:
+    - mdadm
+    - lxcfs
+    - snapd
+
+# configure base and additional packages
+
+## rsyslogd
+- name: configure rsyslogd
+  template:
+    src: files/rsyslogd.conf
+    dest: /etc/rsyslogd.conf
+
+
+## sshd
+#- name: harden sshd config
+  # template:
+  #   src: files/sshd_config
+  #   dest: /etc/ssh/sshd_config
+  # when: ssh_for_admin_user_tested.stdout == "success"
+  # notify: restart sshd
+  # ignore_errors: true
+

@@ -1,0 +1,14 @@
+[Unit]
+Description=euro 2.0 ethereum node
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+ExecStart=/usr/bin/parity --dapps-interface 0.0.0.0 --dapps-hosts all --dapps-user krypto --dapps-pass euro --jsonrpc-interface all --jsonrpc-hosts all --jsonrpc-cors "*"
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

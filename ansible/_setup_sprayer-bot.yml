@@ -1,0 +1,48 @@
+---
+- hosts: sprayer-bot
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  roles:
+    - euro2.base-setup
+
+  tasks:
+  #- name: get latest newrelic agent jar
+  #  file:
+  #    path: /opt/sprayer-bot/
+
+  # sprayer bot
+  - name: create sprayer bot directory
+    file:
+      state: directory
+      path: /opt/sprayer-bot/builds
+      owner: sprayer-bot
+      group: sprayer-bot
+
+  - name: create directory for user systemd ini files
+    file:
+      state: directory
+      path: /home/sprayer-bot/.config/systemd/user/
+
+  - name: create wallet server user systemd ini file
+    copy:
+      src: systemd/sprayer-bot.service
+      dest: /home/sprayer-bot/.config/systemd/user/sprayer-bot.service
+      owner: sprayer-bot
+      group: sprayer-bot
+
+  - name: add environment variable to .profile in order to get systemd --user working
+    lineinfile:
+      path: /home/sprayer-bot/.profile
+      line: 'export XDG_RUNTIME_DIR=/run/user/`id -u`'
+      state: present
+
+  - name: add sprayer-bot user to journal group in order to read logs
+    user:
+      name: sprayer-bot
+      append: yes
+      groups: systemd-journal
+
+#  - name: ensure newrelic agent is available
+...
