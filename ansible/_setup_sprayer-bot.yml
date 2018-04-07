@@ -8,9 +8,6 @@
     - euro2.base-setup
 
   tasks:
-  #- name: get latest newrelic agent jar
-  #  file:
-  #    path: /opt/sprayer-bot/
 
   # sprayer bot
   - name: create sprayer bot directory
@@ -44,5 +41,9 @@
       append: yes
       groups: systemd-journal
 
-#  - name: ensure newrelic agent is available
+  - name: get latest newrelic agent jar
+    unarchive:
+      src: files/newrelic-java-4.0.0.zip
+      dest: /opt/sprayer-bot/
+
 ...
