@@ -22,7 +22,7 @@
       module: wait_for
       host: "{{ inventory_hostname }}"
       state: started
-      timeout: 300
+      port: 22
     become: false
     when: update_result.changed == True
 
