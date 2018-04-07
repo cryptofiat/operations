@@ -5,4 +5,4 @@ euro2_users:
     ssh_pubkey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkmKX6p8hK8tI3Q3HrDmKPvxVdDPdvI6OCxPqCLA8HyjqRMi6rYPLKshMQVyE1JIRfHdc17jIzmVQINZ61eerkIIZI4G8qORTD6sqCRu5UpDf7DkD1KDPbFEkaqYHhhlu++ODfSTC4QkWtdUa6HK7vVMfEgIq7vbK3nVra5KO1zc8VHr/Cst8lyEzF5HuEKfwO27apkpqgKMxeqZKhpQmOhOdSju1zKZmkwP7oYKgRzh46acboSXIYPV4ngwi0UVufgWjhy4xdOLcUCYYmr/FpqqjAZghRmjnknZXpnYfBjOWF7/Uj9Jj0mN7lLlcYxGrOND3UNjOlw5wr57ImgL+z
 
 euro2_system_users:
-  - name: account-mapper
+  - name: account-identity

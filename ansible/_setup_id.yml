@@ -62,6 +62,43 @@
       dest: /etc/nginx/conf.d/id.conf
     notify: restart nginx
 
+  # account identity mapper
+  - name: create account identity mapper directory
+    file:
+      state: directory
+      path: /opt/account-identity/builds
+      owner: account-identity
+      group: account-identity
+
+  - name: create directory for user systemd ini files
+    file:
+      state: directory
+      path: /home/account-identity/.config/systemd/user/
+
+  - name: create wallet server user systemd ini file
+    copy:
+      src: systemd/account-identity.service
+      dest: /home/account-identity/.config/systemd/user/account-identity.service
+      owner: account-identity
+      group: account-identity
+
+  - name: add environment variable to .profile in order to get systemd --user working
+    lineinfile:
+      path: /home/account-identity/.profile
+      line: 'export XDG_RUNTIME_DIR=/run/user/`id -u`'
+      state: present
+
+  - name: add account-identity user to journal group in order to read logs
+    user:
+      name: account-identity
+      append: yes
+      groups: systemd-journal
+
+  - name: get latest newrelic agent jar
+    unarchive:
+      src: files/newrelic-java-4.0.0.zip
+      dest: /opt/account-identity/
+
   handlers:
     - name: restart nginx
       service:
