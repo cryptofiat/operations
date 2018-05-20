@@ -9,11 +9,20 @@
     - euro2.base-setup
 
   tasks:
-  - name: add nginx repo
+  - name: add custom ppa
     apt_repository:
-      repo: 'ppa:nginx/stable'
+      repo: "{{ item }}"
+    with_items:
+      - 'ppa:nginx/stable'
+      - 'ppa:webupd8team/java'
 
-  - name: install base packages
+  - name: set licence selected
+    shell: /bin/echo debconf shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+
+  - name: set licence seen
+    shell: /bin/echo debconf shared/accepted-oracle-license-v1-1 seen true | /usr/bin/debconf-set-selections
+
+  - name: install extended packages
     package:
       name: "{{ item }}"
       state: present
@@ -21,6 +30,7 @@
       - letsencrypt
       - ldapscripts
       - nginx-full
+      - oracle-java8-installer
 
   ## nginx
   - name: configure nginx

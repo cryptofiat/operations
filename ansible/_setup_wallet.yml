@@ -8,13 +8,12 @@
     - euro2.base-setup
 
   tasks:
-  #- name: get latest newrelic agent jar
-  #  file:
-  #    path: /opt/wallet-server/
-
-  - name: add nginx repo
+  - name: add custom ppa
     apt_repository:
-      repo: 'ppa:nginx/stable'
+      repo: "{{ item }}"
+    with_items:
+      - 'ppa:nginx/stable'
+      - 'ppa:webupd8team/java'
 
   - name: install extended packages
     package:
@@ -24,6 +23,7 @@
       - letsencrypt
       - ldapscripts
       - nginx-full
+      - oracle-java8-installer
 
   ## nginx
   - name: configure nginx
