@@ -21,6 +21,8 @@
     file:
       state: directory
       path: /home/sprayer-bot/.config/systemd/user/
+      owner: sprayer-bot
+      group: sprayer-bot
 
   - name: create wallet server user systemd ini file
     copy:
@@ -45,5 +47,6 @@
     unarchive:
       src: files/newrelic-java-4.0.0.zip
       dest: /opt/sprayer-bot/
-
+      owner: sprayer-bot
+      group: sprayer-bot
 ...

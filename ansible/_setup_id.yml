@@ -84,6 +84,8 @@
     file:
       state: directory
       path: /home/account-identity/.config/systemd/user/
+      owner: account-identity
+      group: account-identity
 
   - name: create wallet server user systemd ini file
     copy:
@@ -108,6 +110,8 @@
     unarchive:
       src: files/newrelic-java-4.0.0.zip
       dest: /opt/account-identity/
+      owner: account-identity
+      group: account-identity
 
   handlers:
     - name: restart nginx
