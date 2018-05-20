@@ -1,3 +1,6 @@
+# does not care about service start or enabling on reboot
+# consider this for nginx, sprayer-bot as user
+
 ---
 - hosts: sprayer-bot
   become: yes
@@ -88,12 +91,15 @@
       line: 'export XDG_RUNTIME_DIR=/run/user/`id -u`'
       state: present
 
+  # actually, there should be a separate user-accessible log file being created by
+  # journald, but that does not work currently
   - name: add sprayer-bot user to journal group in order to read logs
     user:
       name: sprayer-bot
       append: yes
       groups: systemd-journal
 
+  # monitoring
   - name: get latest newrelic agent jar
     unarchive:
       src: files/newrelic-java-4.0.0.zip
